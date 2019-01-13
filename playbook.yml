@@ -1,0 +1,74 @@
+---
+- name: setup
+  connection: local
+  hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: Install extra command line tools
+    homebrew:
+      name: "{{ item }}"
+      update_homebrew: yes
+      state: present
+    loop:
+      - elixir
+      - exercism
+      - heroku
+      - htop
+      - jq
+      - neovim
+      - python
+      - python3
+      - rbenv
+      - reattach-to-user-namespace
+      - ripgrep
+      - ruby
+      - tmate
+      - tmux
+      - travis
+      - universal-ctags
+      - watch
+      - zplug
+      - zsh
+
+  - name: Install apps
+    homebrew_cask:
+      name: "{{ item }}"
+      state: present
+    loop:
+      - dropbox
+      - docker
+      - alfred
+      - 1password
+      - brave-browser
+      - firefox
+      - google-chrome
+      - slack
+      - iterm2
+      - google-backup-and-sync
+      - zoom
+      - intellij-idea-ce
+      - signal
+      - calibre
+
+  - name: Get dotfiles
+    git:
+      repo: git@github.com:damonkelley/dotfiles.git
+      dest: ~/dotfiles
+
+  - name: Setup symlinks
+    shell: ./link.sh
+    ignore_errors: true
+    args:
+      chdir: ~/dotfiles
+
+  - name: Install neovim Python client library
+    pip:
+      name: neovim
+      executable: "{{ item }}"
+      state: present
+    loop:
+      - pip
+      - pip3
+
+  - name: Setup neovim
+    command: nvim +PlugInstall +qa
